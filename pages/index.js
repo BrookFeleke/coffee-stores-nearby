@@ -1,10 +1,10 @@
-import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
-import Banner from "../components/banner";
+import Head from 'next/head';
+import Image from 'next/image';
+import styles from '../styles/Home.module.css';
+import Banner from '../components/banner';
 export default function Home() {
   const handleOnBannerBtnClick = () => {
-    console.count("Button clicker");
+    console.count('Button clicker');
   };
 
   return (
@@ -21,7 +21,12 @@ export default function Home() {
           handleOnClick={handleOnBannerBtnClick}
         ></Banner>
         <div className={styles.heroImage}>
-          <Image src="/static/hero-image.png" width={700} height={400} />
+          <Image
+            src="/static/hero-image.png"
+            width={700}
+            height={400}
+            alt="Banner image of lady holding coffee"
+          />
         </div>
       </main>
     </div>

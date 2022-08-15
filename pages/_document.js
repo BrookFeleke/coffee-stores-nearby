@@ -1,4 +1,4 @@
-import Document, { Html, Main, NextScript, Head } from "next/document";
+import Document, { Html, Main, NextScript, Head } from 'next/document';
 
 class MyDocument extends Document {
   render() {
@@ -11,22 +11,22 @@ class MyDocument extends Document {
             as="font"
             crossOrigin="anonymous"
           ></link>
-            <link
+          <link
             rel="preload"
             href="/fonts/IBMPlexSans-Regular.ttf"
             as="font"
             crossOrigin="anonymous"
           ></link>
-            <link
+          <link
             rel="preload"
             href="/fonts/IBMPlexSans-SemiBold.ttf"
             as="font"
             crossOrigin="anonymous"
           ></link>
-                <link rel="icon" href="/beans.png" />
+          <link rel="icon" href="/beans.png" />
         </Head>
         <body>
-          <Main></Main> 
+          <Main></Main>
           <NextScript />
         </body>
       </Html>
