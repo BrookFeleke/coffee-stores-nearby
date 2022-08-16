@@ -16,14 +16,14 @@
 .heroImage {
   position: absolute;
   top: 0px;
-  z-index: 0;
+  z-index: 1;
 }
 
 .cardLayout {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
-  column-gap: 1.5rem;
-  row-gap: 1.5rem;
+  column-gap: 1.5rem /* 24px */;
+  row-gap: 1.5rem /* 24px */;
 }
 
 .card {
@@ -107,6 +107,7 @@
   .main {
     margin-top: 7rem /* 112px */;
   }
+
   .cardLayout {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

@@ -2,11 +2,13 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import Banner from '../components/banner';
+import Card from '../components/card';
+import coffeeStores from '../data/coffee-stores.json';
 export default function Home() {
   const handleOnBannerBtnClick = () => {
     console.count('Button clicker');
   };
-
+console.log(coffeeStores);
   return (
     <div className={styles.container}>
       <Head>
@@ -27,6 +29,16 @@ export default function Home() {
             height={400}
             alt="Banner image of lady holding coffee"
           />
+        </div>
+        <div className={styles.cardLayout}>
+          {coffeeStores.map((store) => {
+            return <Card
+              name={store.name}
+              imgUrl={store.imgUrl}
+              href={`/coffee-store/${store.id}`}
+              className={styles.card}
+            />;
+          })}
         </div>
       </main>
     </div>
