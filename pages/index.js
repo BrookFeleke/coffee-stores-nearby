@@ -3,12 +3,20 @@ import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import Banner from '../components/banner';
 import Card from '../components/card';
-import coffeeStores from '../data/coffee-stores.json';
-export default function Home() {
+import coffeeStoresData from '../data/coffee-stores.json';
+
+export async function getStaticProps(context) {
+  return {
+    props: {
+      coffeeStores: coffeeStoresData,
+    },
+  };
+}
+export default function Home(props) {
   const handleOnBannerBtnClick = () => {
     console.count('Button clicker');
   };
-console.log(coffeeStores);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -30,16 +38,24 @@ console.log(coffeeStores);
             alt="Banner image of lady holding coffee"
           />
         </div>
-        <div className={styles.cardLayout}>
-          {coffeeStores.map((store) => {
-            return <Card key={store.id}
-              name={store.name}
-              imgUrl={store.imgUrl}
-              href={`/coffee-store/${store.id}`}
-              className={styles.card}
-            />;
-          })}
-        </div>
+        {props.coffeeStores.length > 0 && (
+          <>
+            <h2 className={styles.heading2}>Toronto stores</h2>
+            <div className={styles.cardLayout}>
+              {props.coffeeStores.map((store) => {
+                return (
+                  <Card
+                    key={store.id}
+                    name={store.name}
+                    imgUrl={store.imgUrl}
+                    href={`/coffee-store/${store.id}`}
+                    className={styles.card}
+                  />
+                );
+              })}
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
