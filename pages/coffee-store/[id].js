@@ -6,19 +6,26 @@ import cls from 'classnames';
 
 import coffeeStoresData from '../../data/coffee-stores.json';
 import styles from '../../styles/coffee-store.module.css';
+import { fetchCoffeeStores } from '../../lib/coffee-stores.js';
+
 export async function getStaticProps({ params }) {
+  const coffeeStoresData = await fetchCoffeeStores();
+
   return {
     props: {
       coffeeStore: coffeeStoresData.find((coffeeStore) => {
-        return coffeeStore.id.toString() === params.id;
+        return coffeeStore.fsq_id.toString() === params.id;
       }),
     },
   };
 }
 
-export function getStaticPaths(params) {
+export async function getStaticPaths(params) {
+  const coffeeStoresData = await fetchCoffeeStores();
+  console.log('coffeeStoresData');
+
   const pathArray = coffeeStoresData.map((coffeeStore) => {
-    return { params: { id: coffeeStore.id.toString() } };
+    return { params: { id: coffeeStore.fsq_id.toString() } };
   });
 
   return {
@@ -30,8 +37,10 @@ export function getStaticPaths(params) {
 }
 
 const CoffeeStore = (props) => {
+  const imgUrl =
+    'https://images.unsplash.com/photo-1498804103079-a6351b050096?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2468&q=80';
   const router = useRouter();
-  const { address, name, neighbourhood, imgUrl } = props.coffeeStore;
+  const { location, name } = props.coffeeStore;
 
   if (router.isFallback) return <div>Loading ...</div>;
 
@@ -71,7 +80,7 @@ const CoffeeStore = (props) => {
               height={24}
               alt="address icon"
             ></Image>
-            <p className={styles.text}>{address}</p>
+            <p className={styles.text}>{location.address}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
@@ -80,7 +89,7 @@ const CoffeeStore = (props) => {
               height={24}
               alt="arrow icon"
             ></Image>
-            <p className={styles.text}>{neighbourhood}</p>
+            <p className={styles.text}>{location.formatted_address}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
