@@ -10,7 +10,8 @@ import { fetchCoffeeStores } from '../../lib/coffee-stores.js';
 
 export async function getStaticProps({ params }) {
   const coffeeStoresData = await fetchCoffeeStores();
-
+console.log(coffeeStoresData);
+console.log("params", params.id)
   return {
     props: {
       coffeeStore: coffeeStoresData.find((coffeeStore) => {
@@ -21,17 +22,17 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths(params) {
-  // const coffeeStoresData = await fetchCoffeeStores();
-  // console.log('coffeeStoresData');
+  const coffeeStoresData = await fetchCoffeeStores();
+  console.log('coffeeStoresData');
 
-  // const pathArray = coffeeStoresData.map((coffeeStore) => {
-  //   return { params: { id: coffeeStore.fsq_id.toString() } };
-  // });
+  const pathArray = coffeeStoresData.map((coffeeStore) => {
+    return { params: { id: coffeeStore.fsq_id.toString() } };
+  });
 
   return {
-    // paths: pathArray,
+    paths: pathArray,
     // it should look like this
-    paths: [{ params: { id: '53e4eb6e498eed0b9f7e1188' } }, { params: { id: '4d2d5a0ff728b60cb9019afd' } }],
+    // paths: [{ params: { id: '5a3e35f58a6f1771f7cddd9a' } }, { params: { id: '4f433cbee4b05d3b15c7c772' } }],
     fallback: 'blocking',
   };
 }
