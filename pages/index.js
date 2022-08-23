@@ -9,6 +9,7 @@ import {fetchCoffeeStores} from '../lib/coffee-stores.js'
 export async function getStaticProps(context) {
 
   const coffeeStores = await fetchCoffeeStores()
+  console.log(coffeeStores.imgUrl)
   return {
     props: {
       coffeeStores: coffeeStores,
