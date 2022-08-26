@@ -4,26 +4,26 @@ import Head from 'next/head';
 import Image from 'next/image';
 import cls from 'classnames';
 
-
 import styles from '../../styles/coffee-store.module.css';
 import { fetchCoffeeStores } from '../../lib/coffee-stores.js';
-
+import { useContext, useEffect, useState } from 'react';
+import { StoreContext } from '../_app';
+import { isEmpty } from '../../utils';
 export async function getStaticProps({ params }) {
   const coffeeStoresData = await fetchCoffeeStores();
-console.log(coffeeStoresData);
-console.log("params", params.id)
+
+  const findCoffeeStoresById = coffeeStoresData.find((coffeeStore) => {
+    return coffeeStore.fsq_id.toString() === params.id;
+  });
   return {
     props: {
-      coffeeStore: coffeeStoresData.find((coffeeStore) => {
-        return coffeeStore.fsq_id.toString() === params.id;
-      }),
+      coffeeStore: findCoffeeStoresById ? findCoffeeStoresById : {},
     },
   };
 }
 
 export async function getStaticPaths(params) {
   const coffeeStoresData = await fetchCoffeeStores();
-  console.log('coffeeStoresData');
 
   const pathArray = coffeeStoresData.map((coffeeStore) => {
     return { params: { id: coffeeStore.fsq_id.toString() } };
@@ -37,14 +37,32 @@ export async function getStaticPaths(params) {
   };
 }
 
-const CoffeeStore = (props) => {
+const CoffeeStore = (initialProps) => {
   // const imgUrl =
   //   'https://images.unsplash.com/photo-1498804103079-a6351b050096?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2468&q=80';
   const router = useRouter();
-  const { location, name ,imgUrl} = props.coffeeStore;
 
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+  const id = router.query.id;
   if (router.isFallback) return <div>Loading ...</div>;
 
+  const {
+    state: { coffeeStores },
+  } = useContext(StoreContext);
+
+  useEffect(() => {
+    if (isEmpty(initialProps.coffeeStore)) {
+      if (coffeeStores.length > 0) {
+        const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+          return coffeeStore.fsq_id.toString() === id;
+        });
+        console.log('I am running');
+        console.log({ findCoffeeStoresById });
+        setCoffeeStore(findCoffeeStoresById);
+      }
+    }
+  }, [id]);
+  const { location, name, imgUrl } = coffeeStore;
   const handleUpVoteButton = () => {
     console.log('hangle upvote');
   };

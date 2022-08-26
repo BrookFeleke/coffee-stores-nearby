@@ -3,13 +3,14 @@ import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import Banner from '../components/banner';
 import Card from '../components/card';
-import {fetchCoffeeStores} from '../lib/coffee-stores.js'
-import useTrackLocation from '../hooks/use-track-location'
-
+import { fetchCoffeeStores } from '../lib/coffee-stores.js';
+import useTrackLocation from '../hooks/use-track-location';
+import { useEffect, useState, useContext } from 'react';
+import { StoreContext, ACTION_TYPES } from './_app';
 export async function getStaticProps(context) {
+  const coffeeStores = await fetchCoffeeStores();
 
-  const coffeeStores = await fetchCoffeeStores()
-  console.log(coffeeStores.imgUrl) 
+  console.log(coffeeStores.imgUrl);
   return {
     props: {
       coffeeStores: coffeeStores,
@@ -17,14 +18,36 @@ export async function getStaticProps(context) {
   };
 }
 export default function Home(props) {
+  const { dispatch, state } = useContext(StoreContext);
+  const { coffeeStores, latLong } = state;
 
-const {handleTrackLocation,latLong, locationErrorMsg, isFindingLocation} = useTrackLocation()
-
+  const { handleTrackLocation, locationErrorMsg, isFindingLocation } =
+    useTrackLocation();
+  // const [coffeeStores, setCoffeeStores] = useState('');
+  const [coffeeStoresError, setCoffeeStoresError] = useState('');
+  useEffect(() => {
+    (async () => {
+      if (latLong) {
+        try {
+          const fetchedCoffeeStores = await fetchCoffeeStores(latLong, '6000');
+          console.log({ fetchedCoffeeStores });
+          // setCoffeeStores(fetchedCoffeeStores);
+          dispatch({
+            type: ACTION_TYPES.SET_COFFEE_STORES,
+            payload: { coffeeStores: fetchedCoffeeStores },
+          });
+        } catch (e) {
+          console.log({ e });
+          setCoffeeStoresError(e.message);
+        }
+      }
+    })();
+  }, [latLong]);
   const handleOnBannerBtnClick = () => {
     console.count('Button clicker');
-    console.log({latLong})
-    console.log({locationErrorMsg})
-    handleTrackLocation()
+    console.log({ latLong });
+    console.log({ locationErrorMsg });
+    handleTrackLocation();
   };
 
   return (
@@ -37,10 +60,13 @@ const {handleTrackLocation,latLong, locationErrorMsg, isFindingLocation} = useTr
 
       <main className={styles.main}>
         <Banner
-          buttonText={isFindingLocation? "Loading ...":"View nearby Coffee shops"}
+          buttonText={
+            isFindingLocation ? 'Loading ...' : 'View nearby Coffee shops'
+          }
           handleOnClick={handleOnBannerBtnClick}
         ></Banner>
         {locationErrorMsg && <p>{locationErrorMsg}</p>}
+        {coffeeStoresError && <p>{coffeeStoresError}</p>}
         <div className={styles.heroImage}>
           <Image
             src="/static/hero-image.png"
@@ -49,6 +75,27 @@ const {handleTrackLocation,latLong, locationErrorMsg, isFindingLocation} = useTr
             alt="Banner image of lady holding coffee"
           />
         </div>
+        {coffeeStores.length > 0 && (
+          <div className={styles.sectionWrapper}>
+            <h2 className={styles.heading2}>Stores near me</h2>
+            <div className={styles.cardLayout}>
+              {coffeeStores.map((store) => {
+                return (
+                  <Card
+                    key={store.fsq_id}
+                    name={store.name}
+                    imgUrl={
+                      store.imgUrl ||
+                      'https://images.unsplash.com/photo-1498804103079-a6351b050096?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2468&q=80'
+                    }
+                    href={`/coffee-store/${store.fsq_id}`}
+                    className={styles.card}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
         {props.coffeeStores.length > 0 && (
           <div className={styles.sectionWrapper}>
             <h2 className={styles.heading2}>Addis Coffee stores</h2>
