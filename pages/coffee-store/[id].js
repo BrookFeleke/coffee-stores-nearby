@@ -7,7 +7,7 @@ import cls from 'classnames';
 import styles from '../../styles/coffee-store.module.css';
 import { fetchCoffeeStores } from '../../lib/coffee-stores.js';
 import { useContext, useEffect, useState } from 'react';
-import { StoreContext } from '../_app';
+import { StoreContext } from '../../store/store-context';
 import { isEmpty } from '../../utils';
 export async function getStaticProps({ params }) {
   const coffeeStoresData = await fetchCoffeeStores();
@@ -33,7 +33,7 @@ export async function getStaticPaths(params) {
     paths: pathArray,
     // it should look like this
     // paths: [{ params: { id: '5a3e35f58a6f1771f7cddd9a' } }, { params: { id: '4f433cbee4b05d3b15c7c772' } }],
-    fallback: 'blocking',
+    fallback: true,
   };
 }
 
@@ -63,6 +63,7 @@ const CoffeeStore = (initialProps) => {
     }
   }, [id]);
   const { location, name, imgUrl } = coffeeStore;
+  console.log({ location });
   const handleUpVoteButton = () => {
     console.log('hangle upvote');
   };
@@ -99,7 +100,7 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="address icon"
             ></Image>
-            <p className={styles.text}>{location.address}</p>
+            <p className={styles.text}>{location? location.address:'fsfs'}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
@@ -108,7 +109,7 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="arrow icon"
             ></Image>
-            <p className={styles.text}>{location.formatted_address}</p>
+            <p className={styles.text}>{location? location.formatted_address:'fsfs'}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
