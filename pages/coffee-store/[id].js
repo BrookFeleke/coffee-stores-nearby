@@ -44,7 +44,6 @@ const CoffeeStore = (initialProps) => {
 
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
   const id = router.query.id;
-  if (router.isFallback) return <div>Loading ...</div>;
 
   const {
     state: { coffeeStores },
@@ -62,7 +61,9 @@ const CoffeeStore = (initialProps) => {
       }
     }
   }, [id]);
+  if (router.isFallback) return <div>Loading ...</div>;
   const { location, name, imgUrl } = coffeeStore;
+
   console.log({ location });
   const handleUpVoteButton = () => {
     console.log('hangle upvote');
@@ -100,7 +101,9 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="address icon"
             ></Image>
-            <p className={styles.text}>{location? location.address:'fsfs'}</p>
+            <p className={styles.text}>
+              {location ? location.address : 'fsfs'}
+            </p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
@@ -109,7 +112,9 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="arrow icon"
             ></Image>
-            <p className={styles.text}>{location? location.formatted_address:'fsfs'}</p>
+            <p className={styles.text}>
+              {location ? location.formatted_address : 'fsfs'}
+            </p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
