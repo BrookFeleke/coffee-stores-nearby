@@ -34,4 +34,4 @@ const [state,dispatch] = useReducer(storeReducer,initialState)
   );
 };
 
-export default StoreProvider
+export default StoreProvider;
