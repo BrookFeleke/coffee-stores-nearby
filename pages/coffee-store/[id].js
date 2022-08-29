@@ -13,7 +13,7 @@ export async function getStaticProps({ params }) {
   const coffeeStoresData = await fetchCoffeeStores();
 
   const findCoffeeStoresById = coffeeStoresData.find((coffeeStore) => {
-    return coffeeStore.fsq_id.toString() === params.id;
+    return coffeeStore.id.toString() === params.id;
   });
   return {
     props: {
@@ -26,7 +26,7 @@ export async function getStaticPaths(params) {
   const coffeeStoresData = await fetchCoffeeStores();
 
   const pathArray = coffeeStoresData.map((coffeeStore) => {
-    return { params: { id: coffeeStore.fsq_id.toString() } };
+    return { params: { id: coffeeStore.id.toString() } };
   });
 
   return {
@@ -49,23 +49,53 @@ const CoffeeStore = (initialProps) => {
     state: { coffeeStores },
   } = useContext(StoreContext);
 
-  useEffect(() => {
-    if (isEmpty(initialProps.coffeeStore)) {
-      if (coffeeStores.length > 0) {
-        const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
-          return coffeeStore.fsq_id.toString() === id;
-        });
-        console.log('I am running');
-        console.log({ findCoffeeStoresById });
-        setCoffeeStore(findCoffeeStoresById);
-      }
+  const handleCreateCoffeeStore = async (data) => {
+    const { id, name, address, neighborhood, upvote, imgUrl } = data;
+    try {
+      const response = await fetch('/api/createCoffeeStore', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: `${id}`,
+          name: `${name}`,
+          address: address || '',
+          neighborhood: neighborhood || '',
+          upvote,
+          imgUrl,
+        }),
+      });
+      const dbCoffeeStore = await response.json();
+      console.log('This is the RESULT ------------', { dbCoffeeStore });
+      return { ...dbCoffeeStore[0] };
+    } catch (err) {
+      console.log('There was an error in here', err.message);
     }
+  };
+  useEffect(() => {
+    (async () => {
+      if (isEmpty(initialProps.coffeeStore)) {
+        if (coffeeStores.length > 0) {
+          const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+            return coffeeStore.id.toString() === id;
+          });
+          console.log('I am running');
+          console.log({ findCoffeeStoresById });  
+          const coffeeStoreFromDB = await
+            handleCreateCoffeeStore(findCoffeeStoresById);
+          console.log('Coffee Stores from database', coffeeStoreFromDB);
+          setCoffeeStore({ ...coffeeStoreFromDB });
+        }
+      }
+    })();
   }, [id]);
   if (router.isFallback) return <div>Loading ...</div>;
-  const { location, name, imgUrl } = coffeeStore;
+  const { address, neighborhood, upvote, name, imgUrl } = coffeeStore;
 
-  console.log({ location });
+  // console.log({ location });
   const handleUpVoteButton = () => {
+    setCoffeeStore({...coffeeStore,upvote:(upvote+1)})
     console.log('hangle upvote');
   };
   return (
@@ -101,9 +131,7 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="address icon"
             ></Image>
-            <p className={styles.text}>
-              {location ? location.address : 'fsfs'}
-            </p>
+            <p className={styles.text}>{address ? address : 'fsfs'}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
@@ -113,7 +141,7 @@ const CoffeeStore = (initialProps) => {
               alt="arrow icon"
             ></Image>
             <p className={styles.text}>
-              {location ? location.formatted_address : 'fsfs'}
+              {neighborhood ? neighborhood : 'fsfs'}
             </p>
           </div>
           <div className={styles.iconWrapper}>
@@ -123,7 +151,7 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="star"
             ></Image>
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{upvote}</p>
           </div>
           <button className={styles.upvoteButton} onClick={handleUpVoteButton}>
             Up vote!
