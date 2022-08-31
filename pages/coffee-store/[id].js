@@ -9,6 +9,8 @@ import { fetchCoffeeStores } from '../../lib/coffee-stores.js';
 import { useContext, useEffect, useState } from 'react';
 import { StoreContext } from '../../store/store-context';
 import { isEmpty } from '../../utils';
+import useSWR from 'swr';
+
 export async function getStaticProps({ params }) {
   const coffeeStoresData = await fetchCoffeeStores();
 
@@ -36,21 +38,18 @@ export async function getStaticPaths(params) {
     fallback: true,
   };
 }
-
 const CoffeeStore = (initialProps) => {
-  // const imgUrl =
-  //   'https://images.unsplash.com/photo-1498804103079-a6351b050096?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2468&q=80';
+  const fetcher = (url) => fetch(url).then((res) => res.json());
   const router = useRouter();
-
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
   const id = router.query.id;
-
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+  const [upvote, setUpvote] = useState(0);
   const {
     state: { coffeeStores },
   } = useContext(StoreContext);
-
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
   const handleCreateCoffeeStore = async (data) => {
-    const { id, name, address, neighborhood, upvote, imgUrl } = data;
+    const { id, name, address, neighborhood, imgUrl } = data;
     try {
       const response = await fetch('/api/createCoffeeStore', {
         method: 'POST',
@@ -81,23 +80,48 @@ const CoffeeStore = (initialProps) => {
             return coffeeStore.id.toString() === id;
           });
           console.log('I am running');
-          console.log({ findCoffeeStoresById });  
-          const coffeeStoreFromDB = await
-            handleCreateCoffeeStore(findCoffeeStoresById);
+          console.log({ findCoffeeStoresById });
+          const coffeeStoreFromDB = await handleCreateCoffeeStore(
+            findCoffeeStoresById
+          );
           console.log('Coffee Stores from database', coffeeStoreFromDB);
           setCoffeeStore({ ...coffeeStoreFromDB });
         }
       }
     })();
-  }, [id]);
-  if (router.isFallback) return <div>Loading ...</div>;
-  const { address, neighborhood, upvote, name, imgUrl } = coffeeStore;
+  }, [id, initialProps]);
 
+  useEffect(() => {
+    console.log('This use effect is running ');
+    console.log("This is data from swr",{data});
+    if (data) {
+      setCoffeeStore({ ...data });
+      setUpvote(data.upvote);
+      console.log('Data from Swr', data);
+    } else {
+      console.log({error});
+    }
+  },[data, error]);
   // console.log({ location });
-  const handleUpVoteButton = () => {
-    setCoffeeStore({...coffeeStore,upvote:(upvote+1)})
+  const handleUpVoteButton = async () => {
+    // setCoffeeStore({ ...coffeeStore, upvote: upvote + 1 });
+    setUpvote(upvote + 1);
+    try {
+      const bello = await fetch('/api/upvoteCoffeeStore', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: `${id}`,
+        }),
+      });
+    } catch (error) {
+      console.log({ error });
+    }
     console.log('hangle upvote');
   };
+  if (router.isFallback) return <div>Loading ...</div>;
+  const { address, neighborhood, name, imgUrl } = coffeeStore;
+  // if (!data) return <div>OOps something went wrong </div>;
   return (
     <div className={styles.layout}>
       <Head>
@@ -131,7 +155,7 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="address icon"
             ></Image>
-            <p className={styles.text}>{address ? address : 'fsfs'}</p>
+            <p className={styles.text}>{address ? address : ''}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
@@ -140,9 +164,7 @@ const CoffeeStore = (initialProps) => {
               height={24}
               alt="arrow icon"
             ></Image>
-            <p className={styles.text}>
-              {neighborhood ? neighborhood : 'fsfs'}
-            </p>
+            <p className={styles.text}>{neighborhood ? neighborhood : ''}</p>
           </div>
           <div className={styles.iconWrapper}>
             <Image
