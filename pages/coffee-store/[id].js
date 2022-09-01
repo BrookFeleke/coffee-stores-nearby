@@ -33,8 +33,7 @@ export async function getStaticPaths(params) {
 
   return {
     paths: pathArray,
-    // it should look like this
-    // paths: [{ params: { id: '5a3e35f58a6f1771f7cddd9a' } }, { params: { id: '4f433cbee4b05d3b15c7c772' } }],
+
     fallback: true,
   };
 }
@@ -66,45 +65,32 @@ const CoffeeStore = (initialProps) => {
         }),
       });
       const dbCoffeeStore = await response.json();
-      console.log('This is the RESULT ------------', { dbCoffeeStore });
       return { ...dbCoffeeStore[0] };
-    } catch (err) {
-      console.log('There was an error in here', err.message);
-    }
+    } catch (err) {}
   };
   useEffect(() => {
     (async () => {
-      if (isEmpty(initialProps.coffeeStore)) {
-        if (coffeeStores.length > 0) {
-          const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
-            return coffeeStore.id.toString() === id;
-          });
-          console.log('I am running');
-          console.log({ findCoffeeStoresById });
-          const coffeeStoreFromDB = await handleCreateCoffeeStore(
-            findCoffeeStoresById
-          );
-          console.log('Coffee Stores from database', coffeeStoreFromDB);
-          setCoffeeStore({ ...coffeeStoreFromDB });
-        }
+      if (coffeeStores.length > 0) {
+        const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+          return coffeeStore.id.toString() === id;
+        });
+        const coffeeStoreFromDB = await handleCreateCoffeeStore(
+          findCoffeeStoresById
+        );
+
+        setCoffeeStore({ ...coffeeStoreFromDB });
       }
     })();
   }, [id, initialProps]);
 
   useEffect(() => {
-    console.log('This use effect is running ');
-    console.log("This is data from swr",{data});
     if (data) {
       setCoffeeStore({ ...data });
       setUpvote(data.upvote);
-      console.log('Data from Swr', data);
     } else {
-      console.log({error});
     }
-  },[data, error]);
-  // console.log({ location });
+  }, [data, error]);
   const handleUpVoteButton = async () => {
-    // setCoffeeStore({ ...coffeeStore, upvote: upvote + 1 });
     setUpvote(upvote + 1);
     try {
       const bello = await fetch('/api/upvoteCoffeeStore', {
@@ -114,14 +100,11 @@ const CoffeeStore = (initialProps) => {
           id: `${id}`,
         }),
       });
-    } catch (error) {
-      console.log({ error });
-    }
-    console.log('hangle upvote');
+    } catch (error) {}
   };
   if (router.isFallback) return <div>Loading ...</div>;
   const { address, neighborhood, name, imgUrl } = coffeeStore;
-  // if (!data) return <div>OOps something went wrong </div>;
+
   return (
     <div className={styles.layout}>
       <Head>

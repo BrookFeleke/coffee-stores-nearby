@@ -7,10 +7,8 @@ import {
 
 const createCoffeeStore = async (req, res) => {
   const { method } = req;
-  //   const { id } = req.query;
-  if (method === 'POST') {
-    const { coffeeStore } = req.body;
 
+  if (method === 'POST') {
     const { id, name, address, neighborhood, upvote, imgUrl } = req.body;
     if (id) {
       try {

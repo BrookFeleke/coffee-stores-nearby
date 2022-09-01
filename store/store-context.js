@@ -6,6 +6,7 @@ export const ACTION_TYPES = {
   SET_LAT_LONG: 'SET_LAT_LONG',
   SET_COFFEE_STORES: 'SET_COFFEE_STORES',
 };
+
 const storeReducer = (state, action) => {
   switch (action.type) {
     case ACTION_TYPES.SET_LAT_LONG: {

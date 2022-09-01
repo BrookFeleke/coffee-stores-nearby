@@ -10,7 +10,6 @@ import { StoreContext, ACTION_TYPES } from '../store/store-context';
 export async function getStaticProps(context) {
   const coffeeStores = await fetchCoffeeStores();
 
-  console.log(coffeeStores.imgUrl);
   return {
     props: {
       coffeeStores: coffeeStores,
@@ -23,30 +22,25 @@ export default function Home(props) {
 
   const { handleTrackLocation, locationErrorMsg, isFindingLocation } =
     useTrackLocation();
-  // const [coffeeStores, setCoffeeStores] = useState('');
+
   const [coffeeStoresError, setCoffeeStoresError] = useState('');
   useEffect(() => {
     (async () => {
       if (latLong) {
         try {
           const fetchedCoffeeStores = await fetchCoffeeStores(latLong, '6000');
-          console.log({ fetchedCoffeeStores });
-          // setCoffeeStores(fetchedCoffeeStores);
+
           dispatch({
             type: ACTION_TYPES.SET_COFFEE_STORES,
             payload: { coffeeStores: fetchedCoffeeStores },
           });
         } catch (e) {
-          console.log({ e });
           setCoffeeStoresError(e.message);
         }
       }
     })();
   }, [latLong]);
   const handleOnBannerBtnClick = () => {
-    console.count('Button clicker');
-    console.log({ latLong });
-    console.log({ locationErrorMsg });
     handleTrackLocation();
   };
 
